@@ -6,23 +6,10 @@
 <script src="https://algorithmicmusic.online/js/create-waveform.js"></script>
 <script>
 /* global Tone, nn, d3, createWaveform, createSpectrum */
-let rdm = randomize() 
 
-let freqRaw = 440
-let volRaw = 1
-const pitchOffset = 440
-
-function* randomize () { // co-routine for randomizing synth elements while it plays
-  while (true) {
-    synth.oscillator.partials = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]
-    rdmLabel.content(synth.oscillator.partials)
-    synth.frequency.value = (Math.random() * pitchOffset - pitchOffset / 2) + freqRaw
-    synth.volume.value = volRaw
-    yield;
-  }
-}
-
-const wave = createWaveform()
+let freqRaw, volRaw, intervalN, intervalS
+const pitchOffset = 40
+const numNotes = 8
 
 const synth = new Tone.Synth({
   oscillator: {
@@ -36,38 +23,105 @@ const synth = new Tone.Synth({
     release: 1
   }
 })
+
+function* randomizeNote() { // co-routine for randomizing synth elements while it plays
+  while (true) {
+    let rOffset = (Math.Floor(Math.Random() * numNotes) - numNotes / 2)
+    synth.frequency.value = rOffset * pitchOffset + freqRaw
+    synth.volume.value = rOffset + volRaw
+    synth.envelope.release = Math.Random() * 2 + 1
+    yield;
+  }
+}
+  
+const lfo1 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo2 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo3 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo4 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo5 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo6 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo7 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+
+const lfo8 = new Tone.LFO({
+  frequency: 4,
+  min: 0,
+  max: 1
+})
+  
+function* updateSynth() {
+  synth.oscillator.partials = [1, lfo1.output, lfo2.output, lfo3.output, lfo4.output, lfo5.output, lfo6.output, lfo7.output, lfo8.output]
+  yield
+}
+
+let rdmN = randomizeNote() 
+
+let updS = updateSynth()
+
+const wave = createWaveform()
+
 synth.toDestination()
 synth.connect(wave)
-
-let interval
   
 function start () {
   synth.triggerAttack()
-  interval = setInterval(rdm, 500)
+  intervalN = setInterval(rdmN, 210)
+  intervalS = setInterval(updS, 100)
 }
 
 function stop () {
   synth.triggerRelease()
-  clearInterval(interval)
+  clearInterval(intervalN)
+  clearInterval(intervalS)
 }
 
-function update (e) {
+function mouseUpdate (e) {
   freqRaw = nn.map(e.x, 0, nn.width, 220, 1760)
-  volRaw = nn.map(e.y, 0, nn.height, 0, -80)
+  volRaw = nn.map(e.y, 0, nn.height, 10, -60)
 }
-
-const rdmLabel = nn.create('label')
-  .content("pang")
-  .addTo('body')
+  
+//const Label = nn.create('label')
+  //.content("hello")
+  //.addTo('body')
   
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
-nn.on('mousemove', update)
+nn.on('mousemove', mouseUpdate)
 nn.on('keydown', (e) => {
   if (e.key === 'q') rdm.next()
 })
-nn.on('keydown', (e) => {
-  if (e.key === 'w') interval = clearInterval(interval)
-})
-
+  
 </script>
