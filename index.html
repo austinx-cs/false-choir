@@ -6,6 +6,21 @@
 <script src="https://algorithmicmusic.online/js/create-waveform.js"></script>
 <script>
 /* global Tone, nn, d3, createWaveform, createSpectrum */
+let rdm = randomize() 
+
+let freqRaw = 440
+let volRaw = 1
+const pitchOffset = 440
+
+function* randomize () { // co-routine for randomizing synth elements while it plays
+  while (true) {
+    synth.oscillator.partials = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]
+    rdmLabel.content(synth.oscillator.partials)
+    synth.frequency.value = (Math.random() * pitchOffset - pitchOffset / 2) + freqRaw
+    synth.volume.value = volRaw
+    yield;
+  }
+}
 
 const wave = createWaveform()
 
@@ -24,27 +39,11 @@ const synth = new Tone.Synth({
 synth.toDestination()
 synth.connect(wave)
 
-let rdm = randomize() // co-routine for randomizing synth elements while it plays
-
 let interval
-  
-function* randomize () {
-  while (true) {
-    yield
-    //synth.oscillator.partials = [1, 0, 0.25, 0, 0.125, 0, 0.25, 0, 1]
-    //rdmLabel.content(synth.oscillator.partials)
-    rdmLabel.content("ping")
-    //synth.oscillator.partials = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]
-    yield
-    //synth.oscillator.partials = [1, 0, 0, 0, 0, 0, 0, 0, 0]
-    //rdmLabel.content(synth.oscillator.partials)
-    rdmLabel.content("pong")
-  }
-}
   
 function start () {
   synth.triggerAttack()
-  interval = setInterval(rdm, 10)
+  interval = setInterval(rdm, 500)
 }
 
 function stop () {
@@ -53,21 +52,22 @@ function stop () {
 }
 
 function update (e) {
-  const freq = nn.map(e.x, 0, nn.width, 220, 1760)
-  const vol = nn.map(e.y, 0, nn.height, 0, -80)
-  synth.frequency.value = freq
-  synth.volume.value = vol
+  freqRaw = nn.map(e.x, 0, nn.width, 220, 1760)
+  volRaw = nn.map(e.y, 0, nn.height, 0, -80)
 }
 
 const rdmLabel = nn.create('label')
-  .content(synth.oscillator.partials)
+  .content("pang")
   .addTo('body')
   
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', update)
-//nn.on('keydown', (e) => {
-  //if (e.key === 'q') rdm.next()
-//})
+nn.on('keydown', (e) => {
+  if (e.key === 'q') rdm.next()
+})
+nn.on('keydown', (e) => {
+  if (e.key === 'w') interval = clearInterval(interval)
+})
 
 </script>
