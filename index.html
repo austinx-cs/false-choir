@@ -6,31 +6,68 @@
 <script src="https://algorithmicmusic.online/js/create-waveform.js"></script>
 <script>
 /* global Tone, nn, d3, createWaveform, createSpectrum */
+
 const wave = createWaveform()
 
-const osc = new Tone.Oscillator()
-osc.frequency.value = 440
-osc.type = 'sine'
-osc.toDestination()
-osc.connect(wave)
+const synth = new Tone.Synth({
+  oscillator: {
+    type: 'custom',
+    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0]
+  },
+  envelope: {
+    attack: 0.005,
+    decay: 0.1,
+    sustain: 0.3,
+    release: 1
+  }
+})
+synth.toDestination()
+synth.connect(wave)
 
+let rdm = randomize() // co-routine for randomizing synth elements while it plays
+
+let interval
+  
+function* randomize () {
+  while (true) {
+    yield
+    //synth.oscillator.partials = [1, 0, 0.25, 0, 0.125, 0, 0.25, 0, 1]
+    //rdmLabel.content(synth.oscillator.partials)
+    rdmLabel.content("ping")
+    //synth.oscillator.partials = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]
+    yield
+    //synth.oscillator.partials = [1, 0, 0, 0, 0, 0, 0, 0, 0]
+    //rdmLabel.content(synth.oscillator.partials)
+    rdmLabel.content("pong")
+  }
+}
+  
 function start () {
-  osc.start()
+  synth.triggerAttack()
+  interval = setInterval(rdm, 10)
 }
 
 function stop () {
-  osc.stop()
+  synth.triggerRelease()
+  clearInterval(interval)
 }
 
 function update (e) {
   const freq = nn.map(e.x, 0, nn.width, 220, 1760)
   const vol = nn.map(e.y, 0, nn.height, 0, -80)
-  osc.frequency.value = freq
-  osc.volume.value = vol
+  synth.frequency.value = freq
+  synth.volume.value = vol
 }
 
+const rdmLabel = nn.create('label')
+  .content(synth.oscillator.partials)
+  .addTo('body')
+  
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', update)
+//nn.on('keydown', (e) => {
+  //if (e.key === 'q') rdm.next()
+//})
 
 </script>
