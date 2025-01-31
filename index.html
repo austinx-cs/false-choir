@@ -7,32 +7,24 @@
 <script>
 /* global Tone, nn, d3, createWaveform, createSpectrum */
 
-let freqRaw, volRaw, intervalN, intervalS
+let freqRaw = 440
+let volRaw = 0
+let intervalN, intervalS
 const pitchOffset = 40
 const numNotes = 8
 
 const synth = new Tone.Synth({
   oscillator: {
     type: 'custom',
-    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0]
+    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0],
   },
   envelope: {
     attack: 0.005,
-    decay: 0.1,
+    decay: 5,
     sustain: 0.3,
-    release: 1
+    release: 5
   }
 })
-
-function* randomizeNote() { // co-routine for randomizing synth elements while it plays
-  while (true) {
-    let rOffset = (Math.Floor(Math.Random() * numNotes) - numNotes / 2)
-    synth.frequency.value = rOffset * pitchOffset + freqRaw
-    synth.volume.value = rOffset + volRaw
-    synth.envelope.release = Math.Random() * 2 + 1
-    yield;
-  }
-}
   
 const lfo1 = new Tone.LFO({
   frequency: 4,
@@ -81,15 +73,58 @@ const lfo8 = new Tone.LFO({
   min: 0,
   max: 1
 })
-  
-function* updateSynth() {
-  synth.oscillator.partials = [1, lfo1.output, lfo2.output, lfo3.output, lfo4.output, lfo5.output, lfo6.output, lfo7.output, lfo8.output]
-  yield
+
+function coroutine(func) {
+  let coro = func()
+  coro.next()
+  return function() {
+    coro.next()
+  }
 }
 
-let rdmN = randomizeNote() 
+const label = nn.create('label')
+  .content("pang")
+  .addTo('body')
 
-let updS = updateSynth()
+const label2 = nn.create('label')
+  .content(" ")
+  .addTo('body')
+
+function* pingPong() {
+  while (true) {
+    yield
+    label.content("ping")
+    yield
+    label.content("pong")
+  }
+}
+
+function* randomizeNote() { // co-routine for randomizing synth elements while it plays
+  while (true) {
+    yield
+    tester()
+    synth.triggerAttack()
+    yield
+    let rOffset = Math.floor(Math.random() * numNotes) - numNotes / 2
+    synth.frequency.value = rOffset * pitchOffset + freqRaw
+    synth.volume.value = rOffset * 1.5 + volRaw
+    //synth.envelope.release = Math.random() * 2 + 1
+    synth.triggerRelease()
+  }
+}
+
+function* updateSynth() {
+  while (true) {
+    yield
+    synth.oscillator.partials = [1, lfo1.output, lfo2.output, lfo3.output, lfo4.output, lfo5.output, lfo6.output, lfo7.output, lfo8.output]
+  }
+}
+
+let rdmN = coroutine(randomizeNote)
+let updS = coroutine(updateSynth)
+let tester = coroutine(pingPong)
+
+//setInterval(tester, 500)
 
 const wave = createWaveform()
 
@@ -98,30 +133,31 @@ synth.connect(wave)
   
 function start () {
   synth.triggerAttack()
-  intervalN = setInterval(rdmN, 210)
-  intervalS = setInterval(updS, 100)
+  intervalN = setInterval(rdmN, 50)
+  //intervalS = setInterval(updS, 500)
 }
 
 function stop () {
   synth.triggerRelease()
   clearInterval(intervalN)
-  clearInterval(intervalS)
+  //clearInterval(intervalS)
 }
 
 function mouseUpdate (e) {
-  freqRaw = nn.map(e.x, 0, nn.width, 220, 1760)
-  volRaw = nn.map(e.y, 0, nn.height, 10, -60)
+  freqRaw = nn.map(e.x, 0, nn.width, 220, 2093)
+  volRaw = nn.map(e.y, 0, nn.height, 15, -35)
+  synth.frequency.value = freqRaw
+  synth.volume.value = volRaw
 }
-  
-//const Label = nn.create('label')
-  //.content("hello")
-  //.addTo('body')
   
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', mouseUpdate)
 nn.on('keydown', (e) => {
-  if (e.key === 'q') rdm.next()
+  if (e.key === 'q') { 
+    rdmN.next()
+    updS.next()
+  }
 })
   
 </script>
