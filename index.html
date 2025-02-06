@@ -8,10 +8,7 @@
 /* global Tone, nn, d3, createWaveform, createSpectrum */
 
 let freqRaw = 440
-let volRaw = 0
-let intervalN, intervalS
-const pitchOffset = 40
-const numNotes = 4
+let intervalS
 
 const synth = new Tone.Synth({
   oscillator: {
@@ -34,34 +31,6 @@ function coroutine(func) {
   }
 }
 
-const label = nn.create('label')
-  .content("pang")
-  .addTo('body')
-
-const label2 = nn.create('label')
-  .content(" ")
-  .addTo('body')
-
-function* pingPong() {
-  while (true) {
-    yield
-    label.content("ping")
-    yield
-    label.content("pong")
-  }
-}
-
-function* randomizeNote() { // co-routine for randomizing synth elements while it plays
-  while (true) {
-    yield
-    let rOffset = Math.floor(Math.random() * numNotes) - numNotes / 2
-    synth.frequency.value = rOffset * pitchOffset + freqRaw
-    //synth.frequency.value = 440
-    synth.volume.value = rOffset * 1.5 + volRaw
-    // console.log(synth.oscillator.get().frequency)
-  }
-}
-
 let p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0, p7 = 0, p8 = 0
 let p1Rising = true
 let p2Rising = true
@@ -80,119 +49,20 @@ let p6Rate = 0
 let p7Rate = 0
 let p8Rate = 0
 let iP1, iP2, iP3, iP4, iP5, iP6, iP7, iP8
+let p1Max = 1
+let p2Max = 1
+let p3Max = 1
+let p4Max = 1
+let p5Max = 1
+let p6Max = 1
+let p7Max = 1
+let p8Max = 1
+
 
 function* p1Update() {
   while (true) {
     yield
-    if (p1 >= 1) {
-      p1Rising = false
-    }
-    else if (p1 <= 0) {
-      p1Rising = true
-    }
-    if (p1Rising) {
-      p1 += p1Rate
-    }
-    else {
-      p1 -= p1Rate
-    }
-  }
-}
-  
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 >= 1) {
-      p1Rising = false
-    }
-    else if (p1 <= 0) {
-      p1Rising = true
-    }
-    if (p1Rising) {
-      p1 += p1Rate
-    }
-    else {
-      p1 -= p1Rate
-    }
-  }
-}
-  
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 >= 1) {
-      p1Rising = false
-    }
-    else if (p1 <= 0) {
-      p1Rising = true
-    }
-    if (p1Rising) {
-      p1 += p1Rate
-    }
-    else {
-      p1 -= p1Rate
-    }
-  }
-}
-  
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 >= 1) {
-      p1Rising = false
-    }
-    else if (p1 <= 0) {
-      p1Rising = true
-    }
-    if (p1Rising) {
-      p1 += p1Rate
-    }
-    else {
-      p1 -= p1Rate
-    }
-  }
-}
-  
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 >= 1) {
-      p1Rising = false
-    }
-    else if (p1 <= 0) {
-      p1Rising = true
-    }
-    if (p1Rising) {
-      p1 += p1Rate
-    }
-    else {
-      p1 -= p1Rate
-    }
-  }
-}
-  
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 >= 1) {
-      p1Rising = false
-    }
-    else if (p1 <= 0) {
-      p1Rising = true
-    }
-    if (p1Rising) {
-      p1 += p1Rate
-    }
-    else {
-      p1 -= p1Rate
-    }
-  }
-}
-  
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 >= 1) {  p1Rising = false  }
+    if (p1 >= p1Max) {  p1Rising = false  }
     else if (p1 <= 0) {  p1Rising = true  }
     if (p1Rising) {  p1 += p1Rate  }
     else {  p1 -= p1Rate  }
@@ -202,7 +72,7 @@ function* p1Update() {
 function* p2Update() {
   while (true) {
     yield
-    if (p2 >= 1) {  p2Rising = false  }
+    if (p2 >= p2Max) {  p2Rising = false  }
     else if (p2 <= 0) {  p2Rising = true  }
     if (p2Rising) {  p2 += p2Rate  }
     else {  p2 -= p2Rate  }
@@ -212,7 +82,7 @@ function* p2Update() {
 function* p3Update() {
   while (true) {
     yield
-    if (p3 >= 1) {  p3Rising = false  }
+    if (p3 >= p3Max) {  p3Rising = false  }
     else if (p3 <= 0) {  p3Rising = true  }
     if (p3Rising) {  p3 += p3Rate  }
     else {  p3 -= p3Rate  }
@@ -222,9 +92,9 @@ function* p3Update() {
 function* p4Update() {
   while (true) {
     yield
-    if (p4 >= 1) {  p4Rising = false  }
+    if (p4 >= p4Max) {  p4Rising = false  }
     else if (p4 <= 0) {  p4Rising = true  }
-    if (p4Rising) {  p4 += p1Rate  }
+    if (p4Rising) {  p4 += p4Rate  }
     else {  p4 -= p4Rate  }
   }
 }
@@ -232,7 +102,7 @@ function* p4Update() {
 function* p5Update() {
   while (true) {
     yield
-    if (p5 >= 1) {  p5Rising = false  }
+    if (p5 >= p5Max) {  p5Rising = false  }
     else if (p5 <= 0) {  p5Rising = true  }
     if (p5Rising) {  p5 += p5Rate  }
     else {  p5 -= p5Rate  }
@@ -242,7 +112,7 @@ function* p5Update() {
 function* p6Update() {
   while (true) {
     yield
-    if (p6 >= 1) {  p6Rising = false  }
+    if (p6 >= p6Max) {  p6Rising = false  }
     else if (p6 <= 0) {  p6Rising = true  }
     if (p6Rising) {  p6 += p6Rate  }
     else {  p6 -= p6Rate  }
@@ -252,7 +122,7 @@ function* p6Update() {
 function* p7Update() {
   while (true) {
     yield
-    if (p7 >= 1) {  p7Rising = false  }
+    if (p7 >= p7Max) {  p7Rising = false  }
     else if (p7 <= 0) {  p7Rising = true  }
     if (p7Rising) {  p7 += p7Rate  }
     else {  p7 -= p7Rate  }
@@ -262,7 +132,7 @@ function* p7Update() {
 function* p8Update() {
   while (true) {
     yield
-    if (p8 >= 1) {  p8Rising = false  }
+    if (p8 >= p8Max) {  p8Rising = false  }
     else if (p8 <= 0) {  p8Rising = true  }
     if (p8Rising) {  p8 += p8Rate  }
     else {  p8 -= p8Rate  }
@@ -278,7 +148,7 @@ let p6Up = coroutine(p6Update)
 let p7Up = coroutine(p7Update)
 let p8Up = coroutine(p8Update)
 
-let currRate = 100
+let currRate = 0
 
 function initLoops() {
   iP1 = setInterval(p1Up, currRate)
@@ -307,16 +177,12 @@ initLoops()
 function* updateSynth() {
   while (true) {
     yield
-    //console.log([1, p1, p2, p3, p4, p5, p6, p7, p8])
+    console.log([p1, p2, p3, p4, p5, p6, p7, p8])
     synth.oscillator.partials = [1, p1, p2, p3, p4, p5, p6, p7, p8]
   }
 }
   
-let rdmN = coroutine(randomizeNote)
 let updS = coroutine(updateSynth)
-let tester = coroutine(pingPong)
-
-//setInterval(tester, 500)
 
 const wave = createWaveform()
 
@@ -325,56 +191,79 @@ synth.connect(wave)
   
 function start () {
   synth.triggerAttack()
-  //intervalN = setInterval(rdmN, 500)
   intervalS = setInterval(updS, 50)
 }
 
 function stop () {
   synth.triggerRelease()
-  clearInterval(intervalN)
   clearInterval(intervalS)
 }
 
 function mouseUpdate (e) {
   freqRaw = nn.map(e.x, 0, nn.width, 220, 1000)
-  volRaw = nn.map(e.y, 0, nn.height, 0, -25)
+  synth.volume.value = nn.map(e.y, 0, nn.height, 0, -25)
   synth.frequency.value = freqRaw
-  synth.volume.value = volRaw
 }
   
 function updatePartials (msg) {
   if (msg.chl < 8) {
     if (msg.chl == 0) {
-      p1Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p1Rate = nn.map(msg.val, 0, 127, 0, p1Max)
       //console.log(p1Rate)
     }
     else if (msg.chl == 1) {
-      p2Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p2Rate = nn.map(msg.val, 0, 127, 0, p2Max)
       //console.log(p2Rate)
     }
     else if (msg.chl == 2) {
-      p3Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p3Rate = nn.map(msg.val, 0, 127, 0, p3Max)
       //console.log(p3Rate)
     }
     else if (msg.chl == 3) {
-      p4Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p4Rate = nn.map(msg.val, 0, 127, 0, p4Max)
       //console.log(p4Rate)
     }
     else if (msg.chl == 4) {
-      p5Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p5Rate = nn.map(msg.val, 0, 127, 0, p5Max)
       //console.log(p5Rate)
     }
     else if (msg.chl == 5) {
-      p6Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p6Rate = nn.map(msg.val, 0, 127, 0, p6Max)
       //console.log(p6Rate)
     }
     else if (msg.chl == 6) {
-      p7Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p7Rate = nn.map(msg.val, 0, 127, 0, p7Max)
       //console.log(p7Rate)
     }
     else if (msg.chl == 7) {
-      p8Rate = nn.map(msg.val, 0, 127, 0, 1)
+      p8Rate = nn.map(msg.val, 0, 127, 0, p8Max)
       //console.log(p8Rate)
+    }
+  }
+  else if (msg.chl < 23) {
+    if (msg.chl == 16) {
+      p1Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 17) {
+      p2Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 18) {
+      p3Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 19) {
+      p4Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 20) {
+      p5Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 21) {
+      p6Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 22) {
+      p7Max = nn.map(msg.val, 0, 127, 0, 1)
+    }
+    else if (msg.chl == 23) {
+      p8Max = nn.map(msg.val, 0, 127, 0, 1)
     }
   }
   else if (msg.chl == 42 && msg.val == 127) {
