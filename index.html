@@ -294,5 +294,8 @@ nn.MIDI(updatePartials)
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', mouseUpdate)
-  
+
+nn.create('text')
+  .content('(midi required)')
+  .addTo('body')
 </script>
