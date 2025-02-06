@@ -97,13 +97,205 @@ function* p1Update() {
     }
   }
 }
+  
+function* p1Update() {
+  while (true) {
+    yield
+    if (p1 >= 1) {
+      p1Rising = false
+    }
+    else if (p1 <= 0) {
+      p1Rising = true
+    }
+    if (p1Rising) {
+      p1 += p1Rate
+    }
+    else {
+      p1 -= p1Rate
+    }
+  }
+}
+  
+function* p1Update() {
+  while (true) {
+    yield
+    if (p1 >= 1) {
+      p1Rising = false
+    }
+    else if (p1 <= 0) {
+      p1Rising = true
+    }
+    if (p1Rising) {
+      p1 += p1Rate
+    }
+    else {
+      p1 -= p1Rate
+    }
+  }
+}
+  
+function* p1Update() {
+  while (true) {
+    yield
+    if (p1 >= 1) {
+      p1Rising = false
+    }
+    else if (p1 <= 0) {
+      p1Rising = true
+    }
+    if (p1Rising) {
+      p1 += p1Rate
+    }
+    else {
+      p1 -= p1Rate
+    }
+  }
+}
+  
+function* p1Update() {
+  while (true) {
+    yield
+    if (p1 >= 1) {
+      p1Rising = false
+    }
+    else if (p1 <= 0) {
+      p1Rising = true
+    }
+    if (p1Rising) {
+      p1 += p1Rate
+    }
+    else {
+      p1 -= p1Rate
+    }
+  }
+}
+  
+function* p1Update() {
+  while (true) {
+    yield
+    if (p1 >= 1) {
+      p1Rising = false
+    }
+    else if (p1 <= 0) {
+      p1Rising = true
+    }
+    if (p1Rising) {
+      p1 += p1Rate
+    }
+    else {
+      p1 -= p1Rate
+    }
+  }
+}
+  
+function* p1Update() {
+  while (true) {
+    yield
+    if (p1 >= 1) {  p1Rising = false  }
+    else if (p1 <= 0) {  p1Rising = true  }
+    if (p1Rising) {  p1 += p1Rate  }
+    else {  p1 -= p1Rate  }
+  }
+}
+
+function* p2Update() {
+  while (true) {
+    yield
+    if (p2 >= 1) {  p2Rising = false  }
+    else if (p2 <= 0) {  p2Rising = true  }
+    if (p2Rising) {  p2 += p2Rate  }
+    else {  p2 -= p2Rate  }
+  }
+}
+  
+function* p3Update() {
+  while (true) {
+    yield
+    if (p3 >= 1) {  p3Rising = false  }
+    else if (p3 <= 0) {  p3Rising = true  }
+    if (p3Rising) {  p3 += p3Rate  }
+    else {  p3 -= p3Rate  }
+  }
+}
+  
+function* p4Update() {
+  while (true) {
+    yield
+    if (p4 >= 1) {  p4Rising = false  }
+    else if (p4 <= 0) {  p4Rising = true  }
+    if (p4Rising) {  p4 += p1Rate  }
+    else {  p4 -= p4Rate  }
+  }
+}
+
+function* p5Update() {
+  while (true) {
+    yield
+    if (p5 >= 1) {  p5Rising = false  }
+    else if (p5 <= 0) {  p5Rising = true  }
+    if (p5Rising) {  p5 += p5Rate  }
+    else {  p5 -= p5Rate  }
+  }
+}
+  
+function* p6Update() {
+  while (true) {
+    yield
+    if (p6 >= 1) {  p6Rising = false  }
+    else if (p6 <= 0) {  p6Rising = true  }
+    if (p6Rising) {  p6 += p6Rate  }
+    else {  p6 -= p6Rate  }
+  }
+}
+  
+function* p7Update() {
+  while (true) {
+    yield
+    if (p7 >= 1) {  p7Rising = false  }
+    else if (p7 <= 0) {  p7Rising = true  }
+    if (p7Rising) {  p7 += p7Rate  }
+    else {  p7 -= p7Rate  }
+  }
+}
+  
+function* p8Update() {
+  while (true) {
+    yield
+    if (p8 >= 1) {  p8Rising = false  }
+    else if (p8 <= 0) {  p8Rising = true  }
+    if (p8Rising) {  p8 += p8Rate  }
+    else {  p8 -= p8Rate  }
+  }
+}
+  
 let p1Up = coroutine(p1Update)
-let iP1 = setInterval(p1Up, 50)
+let iP1 = setInterval(p1Up, 100)
+
+let p2Up = coroutine(p2Update)
+let iP2 = setInterval(p2Up, 100)
+
+let p3Up = coroutine(p3Update)
+let iP3 = setInterval(p3Up, 100)
+
+let p4Up = coroutine(p4Update)
+let iP4 = setInterval(p4Up, 100)
+
+let p5Up = coroutine(p5Update)
+let iP5 = setInterval(p5Up, 100)
+
+let p6Up = coroutine(p6Update)
+let iP6 = setInterval(p6Up, 100)
+
+let p7Up = coroutine(p7Update)
+let iP7 = setInterval(p7Up, 100)
+
+let p8Up = coroutine(p8Update)
+let iP8 = setInterval(p8Up, 100)
 
 function* updateSynth() {
   while (true) {
     yield
-    console.log([1, p1, p2, p3, p4, p5, p6, p7, p8])
+    //console.log([1, p1, p2, p3, p4, p5, p6, p7, p8])
     synth.oscillator.partials = [1, p1, p2, p3, p4, p5, p6, p7, p8]
   }
 }
@@ -150,6 +342,26 @@ function updatePartials (msg) {
   else if (msg.chl == 2) {
     p3Rate = nn.map(msg.val, 0, 127, 0, 1)
     console.log(p3Rate)
+  }
+  else if (msg.chl == 3) {
+    p4Rate = nn.map(msg.val, 0, 127, 0, 1)
+    console.log(p4Rate)
+  }
+  else if (msg.chl == 4) {
+    p5Rate = nn.map(msg.val, 0, 127, 0, 1)
+    console.log(p5Rate)
+  }
+  else if (msg.chl == 5) {
+    p6Rate = nn.map(msg.val, 0, 127, 0, 1)
+    console.log(p6Rate)
+  }
+  else if (msg.chl == 6) {
+    p7Rate = nn.map(msg.val, 0, 127, 0, 1)
+    console.log(p7Rate)
+  }
+  else if (msg.chl == 7) {
+    p8Rate = nn.map(msg.val, 0, 127, 0, 1)
+    console.log(p8Rate)
   }
 }
 
