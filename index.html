@@ -295,6 +295,9 @@ nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', mouseUpdate)
 
+const spec = createSpectrum({ range: [20, 7040] })
+synth.connect(spec)
+
 nn.create('text')
   .content('(midi required)')
   .addTo('body')
