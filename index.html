@@ -11,7 +11,7 @@ let freqRaw = 440
 let volRaw = 0
 let intervalN, intervalS
 const pitchOffset = 40
-const numNotes = 8
+const numNotes = 4
 
 const synth = new Tone.Synth({
   oscillator: {
@@ -54,10 +54,10 @@ function* pingPong() {
 function* randomizeNote() { // co-routine for randomizing synth elements while it plays
   while (true) {
     yield
-    //let rOffset = Math.floor(Math.random() * numNotes) - numNotes / 2
-    //synth.frequency.value = rOffset * pitchOffset + freqRaw
-    synth.frequency.value = 440
-    //synth.volume.value = rOffset * 1.5 + volRaw
+    let rOffset = Math.floor(Math.random() * numNotes) - numNotes / 2
+    synth.frequency.value = rOffset * pitchOffset + freqRaw
+    //synth.frequency.value = 440
+    synth.volume.value = rOffset * 1.5 + volRaw
     // console.log(synth.oscillator.get().frequency)
   }
 }
@@ -71,14 +71,15 @@ let p5Rising = true
 let p6Rising = true
 let p7Rising = true
 let p8Rising = true
-let p1Rate = 0.1
-let p2Rate = 0.1
-let p3Rate = 0.1
-let p4Rate = 0.1
-let p5Rate = 0.1
-let p6Rate = 0.1
-let p7Rate = 0.1
-let p8Rate = 0.1
+let p1Rate = 0
+let p2Rate = 0
+let p3Rate = 0
+let p4Rate = 0
+let p5Rate = 0
+let p6Rate = 0
+let p7Rate = 0
+let p8Rate = 0
+let iP1, iP2, iP3, iP4, iP5, iP6, iP7, iP8
 
 function* p1Update() {
   while (true) {
@@ -269,28 +270,39 @@ function* p8Update() {
 }
   
 let p1Up = coroutine(p1Update)
-let iP1 = setInterval(p1Up, 100)
-
 let p2Up = coroutine(p2Update)
-let iP2 = setInterval(p2Up, 100)
-
 let p3Up = coroutine(p3Update)
-let iP3 = setInterval(p3Up, 100)
-
 let p4Up = coroutine(p4Update)
-let iP4 = setInterval(p4Up, 100)
-
 let p5Up = coroutine(p5Update)
-let iP5 = setInterval(p5Up, 100)
-
 let p6Up = coroutine(p6Update)
-let iP6 = setInterval(p6Up, 100)
-
 let p7Up = coroutine(p7Update)
-let iP7 = setInterval(p7Up, 100)
-
 let p8Up = coroutine(p8Update)
-let iP8 = setInterval(p8Up, 100)
+
+let currRate = 100
+
+function initLoops() {
+  iP1 = setInterval(p1Up, currRate)
+  iP2 = setInterval(p2Up, currRate)
+  iP3 = setInterval(p3Up, currRate)
+  iP4 = setInterval(p4Up, currRate)
+  iP5 = setInterval(p5Up, currRate)
+  iP6 = setInterval(p6Up, currRate)
+  iP7 = setInterval(p7Up, currRate)
+  iP8 = setInterval(p8Up, currRate)
+}
+
+function clearLoops() {
+  clearInterval(iP1)
+  clearInterval(iP2)
+  clearInterval(iP3)
+  clearInterval(iP4)
+  clearInterval(iP5)
+  clearInterval(iP6)
+  clearInterval(iP7)
+  clearInterval(iP8)
+}
+
+initLoops()
 
 function* updateSynth() {
   while (true) {
@@ -313,7 +325,7 @@ synth.connect(wave)
   
 function start () {
   synth.triggerAttack()
-  intervalN = setInterval(rdmN, 50)
+  //intervalN = setInterval(rdmN, 500)
   intervalS = setInterval(updS, 50)
 }
 
@@ -324,44 +336,62 @@ function stop () {
 }
 
 function mouseUpdate (e) {
-  freqRaw = nn.map(e.x, 0, nn.width, 220, 2093)
+  freqRaw = nn.map(e.x, 0, nn.width, 220, 1000)
   volRaw = nn.map(e.y, 0, nn.height, 0, -25)
-  // synth.frequency.value = freqRaw
-  // synth.volume.value = volRaw
+  synth.frequency.value = freqRaw
+  synth.volume.value = volRaw
 }
-
+  
 function updatePartials (msg) {
-  if (msg.chl == 0) {
-    p1Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p1Rate)
+  if (msg.chl < 8) {
+    if (msg.chl == 0) {
+      p1Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p1Rate)
+    }
+    else if (msg.chl == 1) {
+      p2Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p2Rate)
+    }
+    else if (msg.chl == 2) {
+      p3Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p3Rate)
+    }
+    else if (msg.chl == 3) {
+      p4Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p4Rate)
+    }
+    else if (msg.chl == 4) {
+      p5Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p5Rate)
+    }
+    else if (msg.chl == 5) {
+      p6Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p6Rate)
+    }
+    else if (msg.chl == 6) {
+      p7Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p7Rate)
+    }
+    else if (msg.chl == 7) {
+      p8Rate = nn.map(msg.val, 0, 127, 0, 1)
+      //console.log(p8Rate)
+    }
   }
-  else if (msg.chl == 1) {
-    p2Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p2Rate)
+  else if (msg.chl == 42 && msg.val == 127) {
+    clearLoops()
   }
-  else if (msg.chl == 2) {
-    p3Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p3Rate)
+  else if (msg.chl == 41 && msg.val == 127) {
+    initLoops()
   }
-  else if (msg.chl == 3) {
-    p4Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p4Rate)
-  }
-  else if (msg.chl == 4) {
-    p5Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p5Rate)
-  }
-  else if (msg.chl == 5) {
-    p6Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p6Rate)
-  }
-  else if (msg.chl == 6) {
-    p7Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p7Rate)
-  }
-  else if (msg.chl == 7) {
-    p8Rate = nn.map(msg.val, 0, 127, 0, 1)
-    console.log(p8Rate)
+  else if (msg.chl == 45 && msg.val == 127) {
+    p1 = 0
+    p2 = 0
+    p3 = 0
+    p4 = 0
+    p5 = 0
+    p6 = 0
+    p7 = 0
+    p8 = 0
   }
 }
 
