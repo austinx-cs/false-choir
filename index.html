@@ -10,8 +10,7 @@
 nn.create('title')
   .content('false choir')
   .addTo('body')
-  
-let freqRaw = 440
+
 let intervalS
 
 const synth = new Tone.Synth({
@@ -294,6 +293,13 @@ nn.MIDI(updatePartials)
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', mouseUpdate)
+
+nn.on('keydown', (e) => {
+  if (e.key === 'q') playTimeCode(0)
+  else if (e.key === 'w') playTimeCode(1)
+  else if (e.key === 'e') playTimeCode(2)
+  else if (e.key === 'r') playTimeCode(3)
+})
 
 const spec = createSpectrum({ range: [20, 7040] })
 synth.connect(spec)
