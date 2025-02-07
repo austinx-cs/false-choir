@@ -294,8 +294,13 @@ nn.on('mousedown', start)
 nn.on('mouseup', stop)
 nn.on('mousemove', mouseUpdate)
 
+function keyStart(note) {
+  synth.triggerAttack(note)
+  intervalS = setInterval(updS, 50)
+}
+  
 nn.on('keydown', (e) => {
-  if (e.key === 'q') playTimeCode(0)
+  if (e.key === 'q') {start();}
   else if (e.key === 'w') playTimeCode(1)
   else if (e.key === 'e') playTimeCode(2)
   else if (e.key === 'r') playTimeCode(3)
