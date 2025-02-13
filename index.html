@@ -300,10 +300,50 @@ function keyStart(note) {
 }
   
 nn.on('keydown', (e) => {
-  if (e.key === 'q') {start();}
-  else if (e.key === 'w') playTimeCode(1)
-  else if (e.key === 'e') playTimeCode(2)
-  else if (e.key === 'r') playTimeCode(3)
+  if (e.key === ' ') {stop();}
+  // row one
+  else if (e.key === 'Tab') {keyStart("C3");}
+  else if (e.key === '1') {keyStart("C#3");}
+  else if (e.key === 'q') {keyStart("D3");}
+  else if (e.key === '2') {keyStart("D#3");}
+  else if (e.key === 'w') {keyStart("E3");}
+  else if (e.key === 'e') {keyStart("F3");}
+  else if (e.key === '4') {keyStart("F#3");}
+  else if (e.key === 'r') {keyStart("G3");}
+  else if (e.key === '5') {keyStart("G#3");}
+  else if (e.key === 't') {keyStart("A3");}
+  else if (e.key === '6') {keyStart("A#3");}
+  else if (e.key === 'y') {keyStart("B3");}
+  else if (e.key === 'u') {keyStart("C4");}
+  else if (e.key === '8') {keyStart("C#4");}
+  else if (e.key === 'i') {keyStart("D4");}
+  else if (e.key === '9') {keyStart("D#4");}
+  else if (e.key === 'o') {keyStart("E4");}
+  else if (e.key === 'p') {keyStart("F4");}
+  else if (e.key === '-') {keyStart("F#4");}
+  else if (e.key === '[') {keyStart("G4");}
+  else if (e.key === '=') {keyStart("G#4");}
+  else if (e.key === ']') {keyStart("A4");}
+  else if (e.key === 'Backspace') {keyStart("A#4");}
+  else if (e.key === '\\') {keyStart("B4");}
+  // row two
+  else if (e.key === 'z') {keyStart("C5");}
+  else if (e.key === 's') {keyStart("C#5");}
+  else if (e.key === 'x') {keyStart("D5");}
+  else if (e.key === 'd') {keyStart("D#5");}
+  else if (e.key === 'c') {keyStart("E5");}
+  else if (e.key === 'v') {keyStart("F5");}
+  else if (e.key === 'g') {keyStart("F#5");}
+  else if (e.key === 'b') {keyStart("G5");}
+  else if (e.key === 'h') {keyStart("G#5");}
+  else if (e.key === 'n') {keyStart("A5");}
+  else if (e.key === 'j') {keyStart("A#5");}
+  else if (e.key === 'm') {keyStart("B5");}
+  else if (e.key === ',') {keyStart("C6");}
+  else if (e.key === 'l') {keyStart("C#6");}
+  else if (e.key === '.') {keyStart("D6");}
+  else if (e.key === ';') {keyStart("D#6");}
+  else if (e.key === '/') {keyStart("D#6");}
 })
 
 const spec = createSpectrum({ range: [20, 7040] })
