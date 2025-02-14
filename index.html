@@ -7,33 +7,8 @@
 <script>
 /* global Tone, nn, d3, createWaveform, createSpectrum */
 
-nn.create('title')
-  .content('false choir')
-  .addTo('body')
-
+// declaring globals
 let intervalS
-
-const synth = new Tone.Synth({
-  oscillator: {
-    type: 'custom',
-    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0]
-  },
-  envelope: {
-    attack: 0.005,
-    decay: 2,
-    sustain: 0.7,
-    release: 5
-  }
-})
-
-function coroutine(func) {
-  let coro = func()
-  coro.next()
-  return function() {
-    coro.next()
-  }
-}
-
 let p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0, p7 = 0, p8 = 0
 let p1Rising = true
 let p2Rising = true
@@ -60,8 +35,42 @@ let p5Max = 1
 let p6Max = 1
 let p7Max = 1
 let p8Max = 1
+  
+// title
+nn.create('title')
+  .content('false choir')
+  .addTo('body')
 
+// synth
+const synth = new Tone.PolySynth(Tone.Synth)
+synth.set({
+  oscillator: {
+    type: 'custom',
+    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0]
+  },
+  envelope: {
+    attack: 0.005,
+    decay: 2,
+    sustain: 0.7,
+    release: 5
+  }
+})
+const wave = createWaveform()
+synth.toDestination()
+synth.connect(wave)
+const spec = createSpectrum({ range: [20, 7040] })
+synth.connect(spec)
 
+// coroutine base function
+function coroutine(func) {
+  let coro = func()
+  coro.next()
+  return function() {
+    coro.next()
+  }
+}
+
+// many coroutine functions
 function* p1Update() {
   while (true) {
     yield
@@ -177,38 +186,118 @@ function clearLoops() {
 
 initLoops()
 
+// updating synth with new partials
 function* updateSynth() {
   while (true) {
     yield
     console.log([p1, p2, p3, p4, p5, p6, p7, p8])
-    synth.oscillator.partials = [1, p1, p2, p3, p4, p5, p6, p7, p8]
+    synth.set({
+      "oscillator": {
+        "type": 'custom',
+        "partials": [1, p1, p2, p3, p4, p5, p6, p7, p8]
+      }
+    })
   }
 }
-  
 let updS = coroutine(updateSynth)
 
-const wave = createWaveform()
+// functions for theremin controls
+let thereminNote
+function start() {
+  thereminNote = freqRaw
+  synth.triggerAttack(thereminNote)
+  intervalS = setInterval(updS, 50)
+}
+function stop() {
+  synth.triggerRelease(thereminNote)
+  clearInterval(intervalS)
+}
+function mouseUpdate (e) {
+  freqRaw = nn.map(e.x, 0, nn.width, 220, 1000)
+  synth.set({
+    "oscillator": {
+      "frequency": freqRaw,
+      "volume": nn.map(e.y, 0, nn.height, 0, -25)
+    }
+  })
+}
 
-synth.toDestination()
-synth.connect(wave)
-  
-function start () {
-  synth.triggerAttack()
+nn.on('mousedown', start)
+nn.on('mouseup', stop)
+nn.on('mousemove', mouseUpdate)
+
+function keyStart(note) {
+  synth.triggerAttack(note)
+}
+
+const keyMap = {
+  '`': { note: "C3", pressed: false },
+  '1': { note: "C#3", pressed: false },
+  'q': { note: "D3", pressed: false },
+  '2': { note: "D#3", pressed: false },
+  'w': { note: "E3", pressed: false },
+  'e': { note: "F3", pressed: false },
+  '4': { note: "F#3", pressed: false },
+  'r': { note: "G3", pressed: false },
+  '5': { note: "G#3", pressed: false },
+  't': { note: "A3", pressed: false },
+  '6': { note: "A#3", pressed: false },
+  'y': { note: "B3", pressed: false },
+  'u': { note: "C4", pressed: false },
+  '8': { note: "C#4", pressed: false },
+  'i': { note: "D4", pressed: false },
+  '9': { note: "D#4", pressed: false },
+  'o': { note: "E4", pressed: false },
+  'p': { note: "F4", pressed: false },
+  '-': { note: "F#4", pressed: false },
+  '[': { note: "G4", pressed: false },
+  '=': { note: "G#4", pressed: false },
+  ']': { note: "A4", pressed: false },
+  'Backspace': { note: "A#4", pressed: false },
+  '\\': { note: "B4", pressed: false },
+  'z': { note: "C5", pressed: false },
+  's': { note: "C#5", pressed: false },
+  'x': { note: "D5", pressed: false },
+  'd': { note: "D#5", pressed: false },
+  'c': { note: "E5", pressed: false },
+  'v': { note: "F5", pressed: false },
+  'g': { note: "F#5", pressed: false },
+  'b': { note: "G5", pressed: false },
+  'h': { note: "G#5", pressed: false },
+  'n': { note: "A5", pressed: false },
+  'j': { note: "A#5", pressed: false },
+  'm': { note: "B5", pressed: false },
+  ',': { note: "C6", pressed: false },
+  'l': { note: "C#6", pressed: false },
+  '.': { note: "D6", pressed: false },
+  ';': { note: "D#6", pressed: false },
+  '/': { note: "E6", pressed: false }
+}
+
+function keyStart(e) {
+  const obj = keyMap[e.key]
+  if (obj && !obj.pressed) {
+    synth.triggerAttack(obj.note)
+    obj.pressed = true
+  }
   intervalS = setInterval(updS, 50)
 }
 
-function stop () {
-  synth.triggerRelease()
-  clearInterval(intervalS)
+// here we do the inverse of the function above
+function release(e) {
+  const obj = keyMap[e.key]
+  if (obj && obj.pressed) {
+    synth.triggerRelease(obj.note)
+    obj.pressed = false
+  }
 }
 
-function mouseUpdate (e) {
-  freqRaw = nn.map(e.x, 0, nn.width, 220, 1000)
-  synth.volume.value = nn.map(e.y, 0, nn.height, 0, -25)
-  synth.frequency.value = freqRaw
-}
-  
-function updatePartials (msg) {
+// keyboard controls
+nn.on('keydown', keyStart)
+nn.on('keyup', release)
+
+// MIDI controls
+function updatePartials(msg) {
   if (msg.chl < 8) {
     if (msg.chl == 0) {
       p1Rate = nn.map(msg.val, 0, 127, 0, p1Max)
@@ -286,69 +375,9 @@ function updatePartials (msg) {
     p8 = 0
   }
 }
-
-// run the function every time we receive a new MIDI message
 nn.MIDI(updatePartials)
-  
-nn.on('mousedown', start)
-nn.on('mouseup', stop)
-nn.on('mousemove', mouseUpdate)
 
-function keyStart(note) {
-  synth.triggerAttack(note)
-  intervalS = setInterval(updS, 50)
-}
-  
-nn.on('keydown', (e) => {
-  if (e.key === ' ') {stop();}
-  // row one
-  else if (e.key === '`') {keyStart("C3");}
-  else if (e.key === '1') {keyStart("C#3");}
-  else if (e.key === 'q') {keyStart("D3");}
-  else if (e.key === '2') {keyStart("D#3");}
-  else if (e.key === 'w') {keyStart("E3");}
-  else if (e.key === 'e') {keyStart("F3");}
-  else if (e.key === '4') {keyStart("F#3");}
-  else if (e.key === 'r') {keyStart("G3");}
-  else if (e.key === '5') {keyStart("G#3");}
-  else if (e.key === 't') {keyStart("A3");}
-  else if (e.key === '6') {keyStart("A#3");}
-  else if (e.key === 'y') {keyStart("B3");}
-  else if (e.key === 'u') {keyStart("C4");}
-  else if (e.key === '8') {keyStart("C#4");}
-  else if (e.key === 'i') {keyStart("D4");}
-  else if (e.key === '9') {keyStart("D#4");}
-  else if (e.key === 'o') {keyStart("E4");}
-  else if (e.key === 'p') {keyStart("F4");}
-  else if (e.key === '-') {keyStart("F#4");}
-  else if (e.key === '[') {keyStart("G4");}
-  else if (e.key === '=') {keyStart("G#4");}
-  else if (e.key === ']') {keyStart("A4");}
-  else if (e.key === 'Backspace') {keyStart("A#4");}
-  else if (e.key === '\\') {keyStart("B4");}
-  // row two
-  else if (e.key === 'z') {keyStart("C5");}
-  else if (e.key === 's') {keyStart("C#5");}
-  else if (e.key === 'x') {keyStart("D5");}
-  else if (e.key === 'd') {keyStart("D#5");}
-  else if (e.key === 'c') {keyStart("E5");}
-  else if (e.key === 'v') {keyStart("F5");}
-  else if (e.key === 'g') {keyStart("F#5");}
-  else if (e.key === 'b') {keyStart("G5");}
-  else if (e.key === 'h') {keyStart("G#5");}
-  else if (e.key === 'n') {keyStart("A5");}
-  else if (e.key === 'j') {keyStart("A#5");}
-  else if (e.key === 'm') {keyStart("B5");}
-  else if (e.key === ',') {keyStart("C6");}
-  else if (e.key === 'l') {keyStart("C#6");}
-  else if (e.key === '.') {keyStart("D6");}
-  else if (e.key === ';') {keyStart("D#6");}
-  else if (e.key === '/') {keyStart("D#6");}
-})
-
-const spec = createSpectrum({ range: [20, 7040] })
-synth.connect(spec)
-
+// disclaimer text
 nn.create('text')
   .content('(midi required)')
   .addTo('body')
