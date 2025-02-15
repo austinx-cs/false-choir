@@ -42,11 +42,12 @@ nn.create('title')
   .addTo('body')
 
 // synth
-const synth = new Tone.PolySynth(Tone.Synth)
+const synth = new Tone.PolySynth(Tone.Synth, {maxPolyphony: 4})
 synth.set({
   oscillator: {
     type: 'custom',
-    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0]
+    partials: [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    volume: -10
   },
   envelope: {
     attack: 0.005,
