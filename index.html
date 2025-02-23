@@ -301,35 +301,35 @@ nn.on('keyup', release)
 function updatePartials(msg) {
   if (msg.chl < 8) {
     if (msg.chl == 0) {
-      p1Rate = nn.map(msg.val, 0, 127, 0, p1Max)
+      p1Rate = nn.map(msg.val, 0, 127, 0, p1Max / 2)
       //console.log(p1Rate)
     }
     else if (msg.chl == 1) {
-      p2Rate = nn.map(msg.val, 0, 127, 0, p2Max)
+      p2Rate = nn.map(msg.val, 0, 127, 0, p2Max / 2)
       //console.log(p2Rate)
     }
     else if (msg.chl == 2) {
-      p3Rate = nn.map(msg.val, 0, 127, 0, p3Max)
+      p3Rate = nn.map(msg.val, 0, 127, 0, p3Max / 2)
       //console.log(p3Rate)
     }
     else if (msg.chl == 3) {
-      p4Rate = nn.map(msg.val, 0, 127, 0, p4Max)
+      p4Rate = nn.map(msg.val, 0, 127, 0, p4Max / 2)
       //console.log(p4Rate)
     }
     else if (msg.chl == 4) {
-      p5Rate = nn.map(msg.val, 0, 127, 0, p5Max)
+      p5Rate = nn.map(msg.val, 0, 127, 0, p5Max / 2)
       //console.log(p5Rate)
     }
     else if (msg.chl == 5) {
-      p6Rate = nn.map(msg.val, 0, 127, 0, p6Max)
+      p6Rate = nn.map(msg.val, 0, 127, 0, p6Max / 2)
       //console.log(p6Rate)
     }
     else if (msg.chl == 6) {
-      p7Rate = nn.map(msg.val, 0, 127, 0, p7Max)
+      p7Rate = nn.map(msg.val, 0, 127, 0, p7Max / 2)
       //console.log(p7Rate)
     }
     else if (msg.chl == 7) {
-      p8Rate = nn.map(msg.val, 0, 127, 0, p8Max)
+      p8Rate = nn.map(msg.val, 0, 127, 0, p8Max / 2)
       //console.log(p8Rate)
     }
   }
