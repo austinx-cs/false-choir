@@ -54,6 +54,13 @@ function Partial() {
       else {  this.p -= this.rate  }
     }
   })
+  this.label = null
+  this.lUpdate = function(e) {
+    let rate = e.target.value
+    this.rate = rate
+    console.log(this.rate)
+    //this.label.content(`rate: ${rate.toFixed(2)}`)
+  }
 }
 
 // partial object creations
@@ -74,7 +81,7 @@ function toggleT (e) {
   else { theremin = false }
 }
 
-
+// theremin toggle
 nn.create('input')
   .addTo('body')
   .set({ type: 'checkbox' })
@@ -84,17 +91,20 @@ nn.create('text')
   .addTo('body')
 nn.create('br').addTo('body')
 nn.create('br').addTo('body')
-
-nn.create('text')
-  .content('p1 ')
-  .addTo('body')
-p1.label = nn.create('label')
-  .content('rate: 0 ')
-  .addTo('body')
-nn.create('input')
-  .set({ type: 'range', value: 0, min: 0.01, max: 10, step: 0.1 })
-  .addTo('body')
-  .on('input', p1.lUpdate)
+  
+for (let p = 0; p < partials.length; p++) {
+  nn.create('text')
+    .content('p' + String(p + 1) + ' ')
+    .addTo('body')
+  partials[p].label = nn.create('label')
+    .content('rate: 0 ')
+    .addTo('body')
+  nn.create('input')
+    .set({ type: 'range', value: 0, min: 0, max: partials[p].max, step: 0.01 })
+    .addTo('body')
+    .on('input', p1.lUpdate)
+  nn.create('br').addTo('body')
+}
 
 // coroutine base function
 function coroutine(func) {
