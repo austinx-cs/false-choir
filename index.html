@@ -8,6 +8,7 @@
 /* global Tone, nn, d3, createWaveform, createSpectrum */
 
 // declaring globals
+let theremin = false
 let intervalS
 let p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0, p7 = 0, p8 = 0
 let p1Rising = true
@@ -35,7 +36,25 @@ let p5Max = 1
 let p6Max = 1
 let p7Max = 1
 let p8Max = 1
-  
+
+// partial object
+function Partial() {
+  this.p = 0
+  this.rising = true
+  this.rate = 0
+  this.max = 1
+  this.iP1 = null
+  this.update = function*() {
+    while (true) {
+      yield
+      if (p1 + p1Rate >= p1Max) {  p1Rising = false; p1 = p1Max;  }
+      else if (p1 - p1Rate <= 0) {  p1Rising = true; p1 = 0;  }
+      else if (p1Rising) {  p1 += p1Rate  }
+      else {  p1 -= p1Rate  }
+    }
+  }
+}
+
 // title
 nn.create('title')
   .content('false choir')
@@ -75,9 +94,9 @@ function coroutine(func) {
 function* p1Update() {
   while (true) {
     yield
-    if (p1 >= p1Max) {  p1Rising = false  }
-    else if (p1 <= 0) {  p1Rising = true  }
-    if (p1Rising) {  p1 += p1Rate  }
+    if (p1 + p1Rate >= p1Max) {  p1Rising = false; p1 = p1Max;  }
+    else if (p1 - p1Rate <= 0) {  p1Rising = true; p1 = 0;  }
+    else if (p1Rising) {  p1 += p1Rate  }
     else {  p1 -= p1Rate  }
   }
 }
@@ -85,9 +104,9 @@ function* p1Update() {
 function* p2Update() {
   while (true) {
     yield
-    if (p2 >= p2Max) {  p2Rising = false  }
-    else if (p2 <= 0) {  p2Rising = true  }
-    if (p2Rising) {  p2 += p2Rate  }
+    if (p2 + p2Rate >= p2Max) {  p2Rising = false; p2 = p2Max;  }
+    else if (p2 - p2Rate <= 0) {  p2Rising = true; p2 = 0;  }
+    else if (p2Rising) {  p2 += p2Rate  }
     else {  p2 -= p2Rate  }
   }
 }
@@ -95,9 +114,9 @@ function* p2Update() {
 function* p3Update() {
   while (true) {
     yield
-    if (p3 >= p3Max) {  p3Rising = false  }
-    else if (p3 <= 0) {  p3Rising = true  }
-    if (p3Rising) {  p3 += p3Rate  }
+    if (p3 + p3Rate >= p3Max) {  p3Rising = false; p3 = p3Max;  }
+    else if (p3 - p3Rate <= 0) {  p3Rising = true; p3 = 0;  }
+    else if (p3Rising) {  p3 += p3Rate  }
     else {  p3 -= p3Rate  }
   }
 }
@@ -105,9 +124,9 @@ function* p3Update() {
 function* p4Update() {
   while (true) {
     yield
-    if (p4 >= p4Max) {  p4Rising = false  }
-    else if (p4 <= 0) {  p4Rising = true  }
-    if (p4Rising) {  p4 += p4Rate  }
+    if (p4 + p4Rate >= p4Max) {  p4Rising = false; p4 = p4Max;  }
+    else if (p4 - p4Rate <= 0) {  p4Rising = true; p4 = 0;  }
+    else if (p4Rising) {  p4 += p4Rate  }
     else {  p4 -= p4Rate  }
   }
 }
@@ -115,9 +134,9 @@ function* p4Update() {
 function* p5Update() {
   while (true) {
     yield
-    if (p5 >= p5Max) {  p5Rising = false  }
-    else if (p5 <= 0) {  p5Rising = true  }
-    if (p5Rising) {  p5 += p5Rate  }
+    if (p5 + p5Rate >= p5Max) {  p5Rising = false; p5 = p5Max;  }
+    else if (p5 - p5Rate <= 0) {  p5Rising = true; p5 = 0;  }
+    else if (p5Rising) {  p5 += p5Rate  }
     else {  p5 -= p5Rate  }
   }
 }
@@ -125,9 +144,9 @@ function* p5Update() {
 function* p6Update() {
   while (true) {
     yield
-    if (p6 >= p6Max) {  p6Rising = false  }
-    else if (p6 <= 0) {  p6Rising = true  }
-    if (p6Rising) {  p6 += p6Rate  }
+    if (p6 + p6Rate >= p6Max) {  p6Rising = false; p6 = p6Max;  }
+    else if (p6 - p6Rate <= 0) {  p6Rising = true; p6 = 0;  }
+    else if (p6Rising) {  p6 += p6Rate  }
     else {  p6 -= p6Rate  }
   }
 }
@@ -135,9 +154,9 @@ function* p6Update() {
 function* p7Update() {
   while (true) {
     yield
-    if (p7 >= p7Max) {  p7Rising = false  }
-    else if (p7 <= 0) {  p7Rising = true  }
-    if (p7Rising) {  p7 += p7Rate  }
+    if (p7 + p7Rate >= p7Max) {  p7Rising = false; p7 = p7Max;  }
+    else if (p7 - p7Rate <= 0) {  p7Rising = true; p7 = 0;  }
+    else if (p7Rising) {  p7 += p7Rate  }
     else {  p7 -= p7Rate  }
   }
 }
@@ -145,9 +164,9 @@ function* p7Update() {
 function* p8Update() {
   while (true) {
     yield
-    if (p8 >= p8Max) {  p8Rising = false  }
-    else if (p8 <= 0) {  p8Rising = true  }
-    if (p8Rising) {  p8 += p8Rate  }
+    if (p8 + p8Rate >= p8Max) {  p8Rising = false; p8 = p8Max;  }
+    else if (p8 - p8Rate <= 0) {  p8Rising = true; p8 = 0;  }
+    else if (p8Rising) {  p8 += p8Rate  }
     else {  p8 -= p8Rate  }
   }
 }
@@ -191,7 +210,7 @@ initLoops()
 function* updateSynth() {
   while (true) {
     yield
-    console.log([p1, p2, p3, p4, p5, p6, p7, p8])
+    // console.log([p1, p2, p3, p4, p5, p6, p7, p8])
     synth.set({
       "oscillator": {
         "type": 'custom',
@@ -205,22 +224,28 @@ let updS = coroutine(updateSynth)
 // functions for theremin controls
 let thereminNote
 function start() {
-  thereminNote = freqRaw
-  synth.triggerAttack(thereminNote)
-  intervalS = setInterval(updS, 50)
+  if (theremin) {
+    thereminNote = freqRaw
+    synth.triggerAttack(thereminNote)
+    intervalS = setInterval(updS, 50)
+  }
 }
 function stop() {
-  synth.triggerRelease(thereminNote)
-  clearInterval(intervalS)
+  if (theremin) {  
+    synth.triggerRelease(thereminNote)
+    clearInterval(intervalS)
+  }
 }
 function mouseUpdate (e) {
-  freqRaw = nn.map(e.x, 0, nn.width, 220, 1000)
-  synth.set({
-    "oscillator": {
-      "frequency": freqRaw,
-      "volume": nn.map(e.y, 0, nn.height, 0, -25)
-    }
-  })
+  if (theremin) {
+    freqRaw = nn.map(e.x, 0, nn.width, 220, 1000)
+    synth.set({
+      "oscillator": {
+        "frequency": freqRaw,
+        "volume": nn.map(e.y, 0, nn.height, 0, -25)
+      }
+    })
+  }
 }
 
 nn.on('mousedown', start)
@@ -378,8 +403,42 @@ function updatePartials(msg) {
 }
 nn.MIDI(updatePartials)
 
-// disclaimer text
+function toggleT (e) {
+  if (e.target.checked) { theremin = true }
+  else { theremin = false }
+}
+  
+nn.create('input')
+  .addTo('body')
+  .set({ type: 'checkbox' })
+  .on('change', toggleT)
 nn.create('text')
-  .content('(midi required)')
+  .content('toggle theremin controls')
+  .addTo('body')
+nn.create('br').addTo('body')
+nn.create('br').addTo('body')
+  
+function UIPartialUpdate(e, pRate, prl) {
+  const rate = Number(e.target.value)
+  pRate = rate
+  prl.content(`rate: ${rate.toFixed(2)}`)
+}
+
+nn.create('text')
+  .content('p1 ')
+  .addTo('body')
+const p1rl = nn.create('label')
+  .content('rate: 0 ')
+  .addTo('body')
+nn.create('input')
+  .set({ type: 'range', value: 0, min: 0.01, max: 10, step: 0.1 })
+  .addTo('body')
+  .on('input', UIPartialUpdate(p1Rate, p1rl))
+
+// disclaimer text
+nn.create('br').addTo('body')
+  nn.create('br').addTo('body')
+nn.create('text')
+  .content('(midi recommended)')
   .addTo('body')
 </script>
