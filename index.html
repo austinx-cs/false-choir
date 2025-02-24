@@ -10,50 +10,7 @@
 // declaring globals
 let theremin = false
 let intervalS
-let p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0, p7 = 0, p8 = 0
-let p1Rising = true
-let p2Rising = true
-let p3Rising = true
-let p4Rising = true
-let p5Rising = true
-let p6Rising = true
-let p7Rising = true
-let p8Rising = true
-let p1Rate = 0
-let p2Rate = 0
-let p3Rate = 0
-let p4Rate = 0
-let p5Rate = 0
-let p6Rate = 0
-let p7Rate = 0
-let p8Rate = 0
-let iP1, iP2, iP3, iP4, iP5, iP6, iP7, iP8
-let p1Max = 1
-let p2Max = 1
-let p3Max = 1
-let p4Max = 1
-let p5Max = 1
-let p6Max = 1
-let p7Max = 1
-let p8Max = 1
-
-// partial object
-function Partial() {
-  this.p = 0
-  this.rising = true
-  this.rate = 0
-  this.max = 1
-  this.iP1 = null
-  this.update = function*() {
-    while (true) {
-      yield
-      if (p1 + p1Rate >= p1Max) {  p1Rising = false; p1 = p1Max;  }
-      else if (p1 - p1Rate <= 0) {  p1Rising = true; p1 = 0;  }
-      else if (p1Rising) {  p1 += p1Rate  }
-      else {  p1 -= p1Rate  }
-    }
-  }
-}
+let currRate = 0
 
 // title
 nn.create('title')
@@ -81,6 +38,64 @@ synth.connect(wave)
 const spec = createSpectrum({ range: [20, 7040] })
 synth.connect(spec)
 
+// partial object
+function Partial() {
+  this.p = 0
+  this.rising = true
+  this.rate = 0
+  this.max = 1
+  this.interval = null
+  this.update = coroutine(function*() {
+    while (true) {
+      yield
+      if (this.p + this.rate >= this.max) {this.rising = false; this.p = this.max}
+      else if (this.p - this.rate <= 0) {  this.rising = true; this.p = 0;  }
+      else if (this.rising) {  this.p += this.rate  }
+      else {  this.p -= this.rate  }
+    }
+  })
+}
+
+// partial object creations
+p1 = new Partial()
+p2 = new Partial()
+p3 = new Partial()
+p4 = new Partial()
+p5 = new Partial()
+p6 = new Partial()
+p7 = new Partial()
+p8 = new Partial()
+partials = [p1, p2, p3, p4, p5, p6, p7, p8]
+  
+// UI Stuff
+
+function toggleT (e) {
+  if (e.target.checked) { theremin = true }
+  else { theremin = false }
+}
+
+
+nn.create('input')
+  .addTo('body')
+  .set({ type: 'checkbox' })
+  .on('change', toggleT)
+nn.create('text')
+  .content('toggle theremin controls')
+  .addTo('body')
+nn.create('br').addTo('body')
+nn.create('br').addTo('body')
+
+nn.create('text')
+  .content('p1 ')
+  .addTo('body')
+p1.label = nn.create('label')
+  .content('rate: 0 ')
+  .addTo('body')
+nn.create('input')
+  .set({ type: 'range', value: 0, min: 0.01, max: 10, step: 0.1 })
+  .addTo('body')
+  .on('input', p1.lUpdate)
+
 // coroutine base function
 function coroutine(func) {
   let coro = func()
@@ -90,118 +105,16 @@ function coroutine(func) {
   }
 }
 
-// many coroutine functions
-function* p1Update() {
-  while (true) {
-    yield
-    if (p1 + p1Rate >= p1Max) {  p1Rising = false; p1 = p1Max;  }
-    else if (p1 - p1Rate <= 0) {  p1Rising = true; p1 = 0;  }
-    else if (p1Rising) {  p1 += p1Rate  }
-    else {  p1 -= p1Rate  }
-  }
-}
-
-function* p2Update() {
-  while (true) {
-    yield
-    if (p2 + p2Rate >= p2Max) {  p2Rising = false; p2 = p2Max;  }
-    else if (p2 - p2Rate <= 0) {  p2Rising = true; p2 = 0;  }
-    else if (p2Rising) {  p2 += p2Rate  }
-    else {  p2 -= p2Rate  }
-  }
-}
-  
-function* p3Update() {
-  while (true) {
-    yield
-    if (p3 + p3Rate >= p3Max) {  p3Rising = false; p3 = p3Max;  }
-    else if (p3 - p3Rate <= 0) {  p3Rising = true; p3 = 0;  }
-    else if (p3Rising) {  p3 += p3Rate  }
-    else {  p3 -= p3Rate  }
-  }
-}
-  
-function* p4Update() {
-  while (true) {
-    yield
-    if (p4 + p4Rate >= p4Max) {  p4Rising = false; p4 = p4Max;  }
-    else if (p4 - p4Rate <= 0) {  p4Rising = true; p4 = 0;  }
-    else if (p4Rising) {  p4 += p4Rate  }
-    else {  p4 -= p4Rate  }
-  }
-}
-
-function* p5Update() {
-  while (true) {
-    yield
-    if (p5 + p5Rate >= p5Max) {  p5Rising = false; p5 = p5Max;  }
-    else if (p5 - p5Rate <= 0) {  p5Rising = true; p5 = 0;  }
-    else if (p5Rising) {  p5 += p5Rate  }
-    else {  p5 -= p5Rate  }
-  }
-}
-  
-function* p6Update() {
-  while (true) {
-    yield
-    if (p6 + p6Rate >= p6Max) {  p6Rising = false; p6 = p6Max;  }
-    else if (p6 - p6Rate <= 0) {  p6Rising = true; p6 = 0;  }
-    else if (p6Rising) {  p6 += p6Rate  }
-    else {  p6 -= p6Rate  }
-  }
-}
-  
-function* p7Update() {
-  while (true) {
-    yield
-    if (p7 + p7Rate >= p7Max) {  p7Rising = false; p7 = p7Max;  }
-    else if (p7 - p7Rate <= 0) {  p7Rising = true; p7 = 0;  }
-    else if (p7Rising) {  p7 += p7Rate  }
-    else {  p7 -= p7Rate  }
-  }
-}
-  
-function* p8Update() {
-  while (true) {
-    yield
-    if (p8 + p8Rate >= p8Max) {  p8Rising = false; p8 = p8Max;  }
-    else if (p8 - p8Rate <= 0) {  p8Rising = true; p8 = 0;  }
-    else if (p8Rising) {  p8 += p8Rate  }
-    else {  p8 -= p8Rate  }
-  }
-}
-  
-let p1Up = coroutine(p1Update)
-let p2Up = coroutine(p2Update)
-let p3Up = coroutine(p3Update)
-let p4Up = coroutine(p4Update)
-let p5Up = coroutine(p5Update)
-let p6Up = coroutine(p6Update)
-let p7Up = coroutine(p7Update)
-let p8Up = coroutine(p8Update)
-
-let currRate = 0
-
 function initLoops() {
-  iP1 = setInterval(p1Up, currRate)
-  iP2 = setInterval(p2Up, currRate)
-  iP3 = setInterval(p3Up, currRate)
-  iP4 = setInterval(p4Up, currRate)
-  iP5 = setInterval(p5Up, currRate)
-  iP6 = setInterval(p6Up, currRate)
-  iP7 = setInterval(p7Up, currRate)
-  iP8 = setInterval(p8Up, currRate)
+  for (let p = 0; p < partials.length; p++) {
+    partials[p].interval = setInterval(partials[p].update, currRate)
+  }
 }
 
 function clearLoops() {
-  clearInterval(iP1)
-  clearInterval(iP2)
-  clearInterval(iP3)
-  clearInterval(iP4)
-  clearInterval(iP5)
-  clearInterval(iP6)
-  clearInterval(iP7)
-  clearInterval(iP8)
+  for (let p = 0; p < partials.length; p++) {
+    clearInterval(partials[p].interval)
+  }
 }
 
 initLoops()
@@ -326,62 +239,62 @@ nn.on('keyup', release)
 function updatePartials(msg) {
   if (msg.chl < 8) {
     if (msg.chl == 0) {
-      p1Rate = nn.map(msg.val, 0, 127, 0, p1Max / 2)
-      //console.log(p1Rate)
+      p1.rate = nn.map(msg.val, 0, 127, 0, p1.max / 2)
+      //console.log(p1.rate)
     }
     else if (msg.chl == 1) {
-      p2Rate = nn.map(msg.val, 0, 127, 0, p2Max / 2)
-      //console.log(p2Rate)
+      p2.rate = nn.map(msg.val, 0, 127, 0, p2.max / 2)
+      //console.log(p2.rate)
     }
     else if (msg.chl == 2) {
-      p3Rate = nn.map(msg.val, 0, 127, 0, p3Max / 2)
-      //console.log(p3Rate)
+      p3.rate = nn.map(msg.val, 0, 127, 0, p3.max / 2)
+      //console.log(p3.rate)
     }
     else if (msg.chl == 3) {
-      p4Rate = nn.map(msg.val, 0, 127, 0, p4Max / 2)
-      //console.log(p4Rate)
+      p4.rate = nn.map(msg.val, 0, 127, 0, p4.max / 2)
+      //console.log(p4.rate)
     }
     else if (msg.chl == 4) {
-      p5Rate = nn.map(msg.val, 0, 127, 0, p5Max / 2)
-      //console.log(p5Rate)
+      p5.rate = nn.map(msg.val, 0, 127, 0, p5.max / 2)
+      //console.log(p5.rate)
     }
     else if (msg.chl == 5) {
-      p6Rate = nn.map(msg.val, 0, 127, 0, p6Max / 2)
-      //console.log(p6Rate)
+      p6.rate = nn.map(msg.val, 0, 127, 0, p6.max / 2)
+      //console.log(p6.rate)
     }
     else if (msg.chl == 6) {
-      p7Rate = nn.map(msg.val, 0, 127, 0, p7Max / 2)
-      //console.log(p7Rate)
+      p7.rate = nn.map(msg.val, 0, 127, 0, p7.max / 2)
+      //console.log(p7.rate)
     }
     else if (msg.chl == 7) {
-      p8Rate = nn.map(msg.val, 0, 127, 0, p8Max / 2)
-      //console.log(p8Rate)
+      p8.rate = nn.map(msg.val, 0, 127, 0, p8.max / 2)
+      //console.log(p8.rate)
     }
   }
   else if (msg.chl < 23) {
     if (msg.chl == 16) {
-      p1Max = nn.map(msg.val, 0, 127, 0, 1)
+      p1.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 17) {
-      p2Max = nn.map(msg.val, 0, 127, 0, 1)
+      p2.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 18) {
-      p3Max = nn.map(msg.val, 0, 127, 0, 1)
+      p3.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 19) {
-      p4Max = nn.map(msg.val, 0, 127, 0, 1)
+      p4.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 20) {
-      p5Max = nn.map(msg.val, 0, 127, 0, 1)
+      p5.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 21) {
-      p6Max = nn.map(msg.val, 0, 127, 0, 1)
+      p6.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 22) {
-      p7Max = nn.map(msg.val, 0, 127, 0, 1)
+      p7.max = nn.map(msg.val, 0, 127, 0, 1)
     }
     else if (msg.chl == 23) {
-      p8Max = nn.map(msg.val, 0, 127, 0, 1)
+      p8.max = nn.map(msg.val, 0, 127, 0, 1)
     }
   }
   else if (msg.chl == 42 && msg.val == 127) {
@@ -391,49 +304,17 @@ function updatePartials(msg) {
     initLoops()
   }
   else if (msg.chl == 45 && msg.val == 127) {
-    p1 = 0
-    p2 = 0
-    p3 = 0
-    p4 = 0
-    p5 = 0
-    p6 = 0
-    p7 = 0
-    p8 = 0
+    p1.p = 0
+    p2.p = 0
+    p3.p = 0
+    p4.p = 0
+    p5.p = 0
+    p6.p = 0
+    p7.p = 0
+    p8.p = 0
   }
 }
 nn.MIDI(updatePartials)
-
-function toggleT (e) {
-  if (e.target.checked) { theremin = true }
-  else { theremin = false }
-}
-  
-nn.create('input')
-  .addTo('body')
-  .set({ type: 'checkbox' })
-  .on('change', toggleT)
-nn.create('text')
-  .content('toggle theremin controls')
-  .addTo('body')
-nn.create('br').addTo('body')
-nn.create('br').addTo('body')
-  
-function UIPartialUpdate(e, pRate, prl) {
-  const rate = Number(e.target.value)
-  pRate = rate
-  prl.content(`rate: ${rate.toFixed(2)}`)
-}
-
-nn.create('text')
-  .content('p1 ')
-  .addTo('body')
-const p1rl = nn.create('label')
-  .content('rate: 0 ')
-  .addTo('body')
-nn.create('input')
-  .set({ type: 'range', value: 0, min: 0.01, max: 10, step: 0.1 })
-  .addTo('body')
-  .on('input', UIPartialUpdate(p1Rate, p1rl))
 
 // disclaimer text
 nn.create('br').addTo('body')
