@@ -6,8 +6,6 @@
 <script src="https://algorithmicmusic.online/js/create-waveform.js"></script>
 <script>
 /* global Tone, nn, d3, createWaveform, createSpectrum */
-
-// declaring globals
 let theremin = false
 let intervalS
 let currRate = 40
@@ -17,7 +15,7 @@ const MAXMAX = 1
 let partials = []
 let paused = false
 
-// keyboard synth
+// synth and other notes--------------------------------------------------
 const synth = new Tone.PolySynth(Tone.Synth, {maxPolyphony: 12})
 synth.set({
   oscillator: {
@@ -82,13 +80,23 @@ function updateVolume(e) {
     })
 }
   
-// html stuff  
+// html stuff-------------------------------------------------------------
 //title
 nn.create('title')
   .content('[false choir]')
   .addTo('body')
 nn.create('text')
-  .content('[false choir]')
+  .content('[false choir] \xa0 [by austin xie] \xa0 [midi recommended]')
+  .addTo('body')
+//instructions
+nn.create('br').addTo('body')
+nn.create('br').addTo('body')
+nn.create('text')
+  .content('play with keys: \xa0\xa0 ` 1 q 2 w e 4 r 5 t 6 y u 8 i 9 o p - [ = ] backspace \\')
+  .addTo('body')
+nn.create('br').addTo('body')
+nn.create('text')
+  .content("and: \xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0 z s x d c v g b h n j m , l . ; /")
   .addTo('body')
 //wave&spectrum
 const wave = createWaveform()
@@ -123,21 +131,10 @@ nn.create('input').addTo('body')
   .set({ type: 'checkbox' })
   .on('change', toggleT)
 nn.create('text').addTo('body')
-  .content('toggle theremin controls')
+  .content('toggle theremin controls (mouse move & left-click)')
 nn.create('br').addTo('body')
-//disclaimer
-nn.create('br').addTo('body')
-nn.create('text')
-  .content('(midi recommended)')
-  .addTo('body')
-nn.create('br').addTo('body')
-//credits
-nn.create('br').addTo('body')
-nn.create('text')
-  .content('[by austin xie]')
-  .addTo('body')
   
-// partial class
+// partial class----------------------------------------------------------
   
 class Partial {
   constructor() {
@@ -207,7 +204,7 @@ const p7 = new Partial()
 const p8 = new Partial()
 partials = [p1, p2, p3, p4, p5, p6, p7, p8]
   
-// slider creation
+// slider creation--------------------------------------------------------
 for (let p = 0; p < partials.length; p++) {
   // rate label
   let tempp = partials[p]
@@ -244,7 +241,7 @@ for (let p = 0; p < partials.length; p++) {
   nn.create('br').addTo(sliders)
 }
 
-// partial oscillation functions
+// partial oscillation functions------------------------------------------
 function initLoops() {
   for (let p = 0; p < partials.length; p++) {
     if (!partials[p]["on"]) {
@@ -277,7 +274,7 @@ function resetPartials() {
   updateSynth()
 }
 
-// buttons creation
+// buttons creation-------------------------------------------------------
 nn.create('button')
   .content('pause partials')
   .addTo(buttons)
@@ -298,7 +295,7 @@ nn.create('button')
   .on('click', resetPartials)
 nn.create('br').addTo(buttons)
   
-// mapping keyboard buttons to notes
+// mapping keyboard buttons to notes--------------------------------------
 const keyMap = {
   '`': { note: "C3", pressed: false },
   '1': { note: "C#3", pressed: false },
@@ -343,7 +340,7 @@ const keyMap = {
   '/': { note: "E6", pressed: false }
 }
 
-// keyboard controls
+// keyboard controls------------------------------------------------------
 function keyStart(e) {
   const obj = keyMap[e.key]
   if (obj && !obj.pressed) {
@@ -363,7 +360,7 @@ function release(e) {
   }
 }
   
-// MIDI controls
+// MIDI controls----------------------------------------------------------
 function updatePartials(msg) {
   if (msg.chl < 8) {
     if (msg.chl === 0) {
@@ -438,7 +435,7 @@ function updatePartials(msg) {
   else if (msg.chl === 45 && msg.val === 127) {resetPartials()}
 }
 
-// theremin control functions
+// theremin control functions---------------------------------------------
 let tFreq
 function start() {
   if (theremin) {
@@ -466,7 +463,7 @@ function mouseUpdate (e) {
   }
 }
   
-// netnet input handling
+// netnet input handling--------------------------------------------------
 //theremin
 nn.on('mousedown', start)
 nn.on('mouseup', stop)
