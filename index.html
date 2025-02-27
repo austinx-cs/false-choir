@@ -107,7 +107,7 @@ synth.connect(spec)
 tsynth.connect(spec)
 //volume
 nn.create('label')
-    .content('boost: ')
+    .content('volume boost: ')
     .addTo('body')
 const volSlider = nn.create('input')
     .set({ type: 'range', value: 0, min: -20, max: 0, step: 1 })
