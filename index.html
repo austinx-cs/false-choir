@@ -12,7 +12,8 @@ let theremin = false
 let intervalS
 let currRate = 40
 let vol = 0
-const MAX = 1
+const RATEMAX = 1
+const MAXMAX = 1
 let partials = []
 let paused = false
 
@@ -36,10 +37,10 @@ synth.toDestination()
 // html stuff  
 //title
 nn.create('title')
-  .content('false choir')
+  .content('[false choir]')
   .addTo('body')
 nn.create('text')
-  .content('(false choir)')
+  .content('[false choir]')
   .addTo('body')
 //wave&spectrum
 const wave = createWaveform()
@@ -64,12 +65,17 @@ nn.create('text').addTo('body')
   .content('toggle theremin controls')
 nn.create('br').addTo('body')
 //disclaimer
-  nn.create('br').addTo('body')
+nn.create('br').addTo('body')
 nn.create('text')
   .content('(midi recommended)')
   .addTo('body')
-
-
+nn.create('br').addTo('body')
+//credits
+nn.create('br').addTo('body')
+nn.create('text')
+  .content('[by austin xie]')
+  .addTo('body')
+  
 // partial class
   
 class Partial {
@@ -77,7 +83,7 @@ class Partial {
     this.p = 0
     this.rate = 0
     this.rising = true
-    this.max = 0.33
+    this.max = 1
     this.on = false
     this.rateLabel = null
     this.maxLabel = null
@@ -100,7 +106,6 @@ class Partial {
   }
   updateMax(e) {
     this.max = Number(e.target.value)
-    this.rateInput.max = this.max
     this.updateMaxLabel()
   }
   updateMaxLabel() {
@@ -152,7 +157,7 @@ for (let p = 0; p < partials.length; p++) {
     .addTo(sliders)
   // rate input
   tempp.rateInput = nn.create('input')
-    .set({ type: 'range', value: 0, min: 0, max: tempp.max, step: "any" })
+    .set({ type: 'range', value: 0, min: 0, max: RATEMAX, step: "any" })
     .addTo(sliders)
     .on('input', tempp.updateRate)
   // space between rate and max
@@ -164,14 +169,14 @@ for (let p = 0; p < partials.length; p++) {
     .content('p' + String(p + 1) + '  ')
     .addTo(sliders)
   tempp.maxLabel = nn.create('label')
-    .content('max:  0.33  ')
+    .content('max:  1.00  ')
     .addTo(sliders)
   // max input
   tempp.maxInput = nn.create('input')
-    .set({ type: 'range', value: 0, min: 0, max: MAX, step: "any" })
+    .set({ type: 'range', value: 0, min: 0, max: MAXMAX, step: "any" })
     .addTo(sliders)
     .on('input', tempp.updateMax)
-  tempp.maxInput.value = 0.33
+  tempp.maxInput.value = 1
   // ending line break
   nn.create('br').addTo(sliders)
 }
@@ -201,21 +206,21 @@ function resetPartials() {
 
 // buttons creation
 nn.create('button')
-  .content('pause')
+  .content('pause partials')
   .addTo(buttons)
   .on('click', () => {paused = true; clearLoops()})
 nn.create('text')
   .content('          ')
   .addTo(buttons)
 nn.create('button')
-  .content('resume')
+  .content('resume partials')
   .addTo(buttons)
   .on('click', () => {paused = false; initLoops()})
 nn.create('text')
   .content('          ')
   .addTo(buttons)
 nn.create('button')
-  .content('reset')
+  .content('reset partials')
   .addTo(buttons)
   .on('click', resetPartials)
 nn.create('br').addTo(buttons)
@@ -289,47 +294,71 @@ function release(e) {
 function updatePartials(msg) {
   if (msg.chl < 8) {
     if (msg.chl === 0) {
-      p1.rate = nn.map(msg.val, 0, 127, 0, p1.max)
+      p1.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p1.updateRateLabel()
     }
     else if (msg.chl === 1) {
-      p2.rate = nn.map(msg.val, 0, 127, 0, p2.max)
+      p2.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p2.updateRateLabel()
     }
     else if (msg.chl === 2) {
-      p3.rate = nn.map(msg.val, 0, 127, 0, p3.max)
+      p3.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p3.updateRateLabel()
     }
     else if (msg.chl === 3) {
-      p4.rate = nn.map(msg.val, 0, 127, 0, p4.max)
+      p4.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p4.updateRateLabel()
     }
     else if (msg.chl === 4) {
-      p5.rate = nn.map(msg.val, 0, 127, 0, p5.max)
+      p5.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p5.updateRateLabel()
     }
     else if (msg.chl === 5) {
-      p6.rate = nn.map(msg.val, 0, 127, 0, p6.max)
+      p6.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p6.updateRateLabel()
     }
     else if (msg.chl === 6) {
-      p7.rate = nn.map(msg.val, 0, 127, 0, p7.max)
+      p7.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p7.updateRateLabel()
     }
     else if (msg.chl === 7) {
-      p8.rate = nn.map(msg.val, 0, 127, 0, p8.max)
+      p8.rate = nn.map(msg.val, 0, 127, 0, RATEMAX)
       p8.updateRateLabel()
     }
   }
   else if (msg.chl < 23) {
-    if (msg.chl === 16) {p1.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 17) {p2.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 18) {p3.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 19) {p4.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 20) {p5.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 21) {p6.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 22) {p7.max = nn.map(msg.val, 0, 127, 0, MAX)}
-    else if (msg.chl === 23) {p8.max = nn.map(msg.val, 0, 127, 0, MAX)}
+    if (msg.chl === 16) {
+      p1.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p1.updateMaxLabel()
+    }
+    else if (msg.chl === 17) {
+      p2.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p2.updateMaxLabel()
+    }
+    else if (msg.chl === 18) {
+      p3.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p3.updateMaxLabel()
+    }
+    else if (msg.chl === 19) {
+      p4.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p4.updateMaxLabel()
+    }
+    else if (msg.chl === 20) {
+      p5.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p5.updateMaxLabel()
+    }
+    else if (msg.chl === 21) {
+      p6.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p6.updateMaxLabel()
+    }
+    else if (msg.chl === 22) {
+      p7.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p7.updateMaxLabel()
+    }
+    else if (msg.chl === 23) {
+      p8.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
+      p8.updateMaxLabel()
+    }
   }
   else if (msg.chl === 42 && msg.val === 127) {paused = true; clearLoops()}
   else if (msg.chl === 41 && msg.val === 127) {paused = false; initLoops()}
