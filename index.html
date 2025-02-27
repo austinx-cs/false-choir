@@ -11,7 +11,7 @@
 let theremin = false
 let intervalS
 let currRate = 40
-let vol = 0
+let vol = -10
 const RATEMAX = 1
 const MAXMAX = 1
 let partials = []
@@ -32,7 +32,31 @@ synth.set({
     release: 1
   }
 })
-synth.toDestination()
+const filter1 = new Tone.Filter({
+  type: "lowshelf",
+  frequency: "C4",
+  gain: 10
+})
+const filter2 = new Tone.Filter({
+  type: "lowshelf",
+  frequency: "C5",
+  gain: 1
+})
+const filter3 = new Tone.Filter({
+  type: "highshelf",
+  frequency: "C5",
+  gain: -10
+})
+const filter4 = new Tone.Filter({
+  type: "highshelf",
+  frequency: "C6",
+  gain: -10
+})
+synth.connect(filter1)
+filter1.connect(filter2)
+filter2.connect(filter3)
+filter3.connect(filter4)
+filter4.toDestination()
 
 // html stuff  
 //title
