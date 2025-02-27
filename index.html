@@ -451,7 +451,7 @@ function stop() {
 }
 function mouseUpdate (e) {
   if (theremin) {
-    tFreq = nn.map(e.x, 0, nn.width, Tone.Frequency("C3").toFrequency(), Tone.Frequency("C7").toFrequency())
+    tFreq = nn.map(e.x, 0, nn.width, Tone.Frequency("B2").toFrequency(), Tone.Frequency("C7").toFrequency())
     tsynth.set({
       "oscillator": {
         "frequency": tFreq,
