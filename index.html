@@ -247,8 +247,10 @@ for (let p = 0; p < partials.length; p++) {
 // partial oscillation functions
 function initLoops() {
   for (let p = 0; p < partials.length; p++) {
-    partials[p]["on"] = true
-    partials[p].update()
+    if (!partials[p]["on"]) {
+      partials[p]["on"] = true
+      partials[p].update()
+    }
   }
 }
 
