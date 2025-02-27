@@ -10,13 +10,14 @@
 // declaring globals
 let theremin = false
 let intervalS
-let currRate = 20
+let currRate = 40
 let vol = 0
-const THRESHOLD = 0.05
 const MAX = 1
+let partials = []
+let paused = false
 
 // synth
-const synth = new Tone.PolySynth(Tone.Synth, {maxPolyphony: 4})
+const synth = new Tone.PolySynth(Tone.Synth, {maxPolyphony: 12})
 synth.set({
   oscillator: {
     type: 'custom',
@@ -37,11 +38,20 @@ synth.toDestination()
 nn.create('title')
   .content('false choir')
   .addTo('body')
+nn.create('text')
+  .content('(false choir)')
+  .addTo('body')
 //wave&spectrum
 const wave = createWaveform()
 synth.connect(wave)
 const spec = createSpectrum({ range: [20, 7040] })
 synth.connect(spec)
+//buttons
+const buttons = nn.create('section').addTo('body')
+//sliders
+nn.create('br').addTo('body')
+const sliders = nn.create('section').addTo('body')
+nn.create('br').addTo('body')
 //theremin
 function toggleT(e) {
   if (e.target.checked) { theremin = true }
@@ -53,11 +63,7 @@ nn.create('input').addTo('body')
 nn.create('text').addTo('body')
   .content('toggle theremin controls')
 nn.create('br').addTo('body')
-nn.create('br').addTo('body')
-//sliders
-const sliders = nn.create('section').addTo('body')
 //disclaimer
-nn.create('br').addTo('body')
   nn.create('br').addTo('body')
 nn.create('text')
   .content('(midi recommended)')
@@ -70,30 +76,39 @@ class Partial {
   constructor() {
     this.p = 0
     this.rate = 0
+    this.rising = true
     this.max = MAX
-    this.label = null
-    this.cos = Math.PI
     this.on = false
+    this.RateLabel = null
+    this.input = null
     this.num = 0
     
     this.updateRate = this.updateRate.bind(this)
     this.update = this.update.bind(this)
   }
   updateRate(e) {
-    let temp = Number(e.target.value)
-    this.rate = temp
-    this.label.content(`rate:  ${temp.toFixed(2)}  `)
+    this.rate = Number(e.target.value)
+    this.updateRateLabel()
+  }
+  updateRateLabel() {
+    this.RateLabel.content(`rate:  ${this.rate.toFixed(2)}  `)
   }
   update() {
-    if (this.cos > Math.PI && this.cos % (Math.PI / 4) < THRESHOLD) {
-      this.cos = Math.PI / 4
-    } // in theory prevents eventual overflow
-    this.cos += this.rate
-    this.p = (Math.cos(this.cos) + 1) / 2 * this.max
-    updateSynth()
-    if (this.num === 1) {
-      console.log("partial amp ", this.p)
+    if (this.rising && this.p + this.rate > this.max) {
+      this.rising = false
+      this.p = this.max
     }
+    else if (!this.rising && this.p - this.rate < 0) {
+      this.rising = true
+      this.p = 0
+    }
+    else if (this.rising) {
+      this.p = (this.p + this.rate) * this.max
+    }
+    else {
+      this.p = (this.p - this.rate) * this.max
+    }
+    updateSynth()
     if (this.on) {
       setTimeout(this.update, currRate)
     }
@@ -109,19 +124,19 @@ const p5 = new Partial()
 const p6 = new Partial()
 const p7 = new Partial()
 const p8 = new Partial()
-const partials = [p1, p2, p3, p4, p5, p6, p7, p8]
-
+partials = [p1, p2, p3, p4, p5, p6, p7, p8]
+  
 // slider creation
 for (let p = 0; p < partials.length; p++) {
   nn.create('text')
     .content('p' + String(p + 1) + '  ')
     .addTo(sliders)
   partials[p].num = p + 1
-  partials[p].label = nn.create('label')
+  partials[p].RateLabel = nn.create('label')
     .content('rate:  0.00  ')
     .addTo(sliders)
-  nn.create('input')
-    .set({ type: 'range', value: 0, min: 0, max: Math.PI / 2, step: 0.01 })
+  partials[p].input = nn.create('input')
+    .set({ type: 'range', value: 0, min: 0, max: partials[p].max / 3, step: "any" })
     .addTo(sliders)
     .on('input', partials[p].updateRate)
   nn.create('br').addTo(sliders)
@@ -144,7 +159,33 @@ function updateSynth() {
         "partials": [1, p1.p, p2.p, p3.p, p4.p, p5.p, p6.p, p7.p, p8.p]}
     })
 }
+  
+function resetPartials() {
+  p1.p = 0; p2.p = 0; p3.p = 0; p4.p = 0; p5.p = 0; p6.p = 0; p7.p = 0; p8.p = 0 
+  updateSynth()
+}
 
+// buttons creation
+nn.create('button')
+  .content('pause')
+  .addTo(buttons)
+  .on('click', () => {paused = true; clearLoops()})
+nn.create('text')
+  .content('          ')
+  .addTo(buttons)
+nn.create('button')
+  .content('resume')
+  .addTo(buttons)
+  .on('click', () => {paused = false; initLoops()})
+nn.create('text')
+  .content('          ')
+  .addTo(buttons)
+nn.create('button')
+  .content('reset')
+  .addTo(buttons)
+  .on('click', resetPartials)
+nn.create('br').addTo(buttons)
+  
 // mapping keyboard buttons to notes
 const keyMap = {
   '`': { note: "C3", pressed: false },
@@ -196,7 +237,9 @@ function keyStart(e) {
   if (obj && !obj.pressed) {
     synth.triggerAttack(obj.note)
     obj.pressed = true
-    initLoops()
+    if (!paused) {
+      initLoops()
+    }
   }
 }
 
@@ -205,21 +248,44 @@ function release(e) {
   if (obj && obj.pressed) {
     synth.triggerRelease(obj.note)
     obj.pressed = false
-    clearLoops()
   }
 }
-
+  
 // MIDI controls
 function updatePartials(msg) {
   if (msg.chl < 8) {
-    if (msg.chl === 0) {p1.rate = nn.map(msg.val, 0, 127, 0, p1.max / 2)}
-    else if (msg.chl === 1) {p2.rate = nn.map(msg.val, 0, 127, 0, p2.max / 2)}
-    else if (msg.chl === 2) {p3.rate = nn.map(msg.val, 0, 127, 0, p3.max / 2)}
-    else if (msg.chl === 3) {p4.rate = nn.map(msg.val, 0, 127, 0, p4.max / 2)}
-    else if (msg.chl === 4) {p5.rate = nn.map(msg.val, 0, 127, 0, p5.max / 2)}
-    else if (msg.chl === 5) {p6.rate = nn.map(msg.val, 0, 127, 0, p6.max / 2)}
-    else if (msg.chl === 6) {p7.rate = nn.map(msg.val, 0, 127, 0, p7.max / 2)}
-    else if (msg.chl === 7) {p8.rate = nn.map(msg.val, 0, 127, 0, p8.max / 2)}
+    if (msg.chl === 0) {
+      p1.rate = nn.map(msg.val, 0, 127, 0, p1.max / 3)
+      p1.updateRateLabel()
+    }
+    else if (msg.chl === 1) {
+      p2.rate = nn.map(msg.val, 0, 127, 0, p2.max / 3)
+      p2.updateRateLabel()
+    }
+    else if (msg.chl === 2) {
+      p3.rate = nn.map(msg.val, 0, 127, 0, p3.max / 3)
+      p3.updateRateLabel()
+    }
+    else if (msg.chl === 3) {
+      p4.rate = nn.map(msg.val, 0, 127, 0, p4.max / 3)
+      p4.updateRateLabel()
+    }
+    else if (msg.chl === 4) {
+      p5.rate = nn.map(msg.val, 0, 127, 0, p5.max / 3)
+      p5.updateRateLabel()
+    }
+    else if (msg.chl === 5) {
+      p6.rate = nn.map(msg.val, 0, 127, 0, p6.max / 3)
+      p6.updateRateLabel()
+    }
+    else if (msg.chl === 6) {
+      p7.rate = nn.map(msg.val, 0, 127, 0, p7.max / 3)
+      p7.updateRateLabel()
+    }
+    else if (msg.chl === 7) {
+      p8.rate = nn.map(msg.val, 0, 127, 0, p8.max / 3)
+      p8.updateRateLabel()
+    }
   }
   else if (msg.chl < 23) {
     if (msg.chl === 16) {p1.max = nn.map(msg.val, 0, 127, 0, MAX)}
@@ -231,11 +297,9 @@ function updatePartials(msg) {
     else if (msg.chl === 22) {p7.max = nn.map(msg.val, 0, 127, 0, MAX)}
     else if (msg.chl === 23) {p8.max = nn.map(msg.val, 0, 127, 0, MAX)}
   }
-  else if (msg.chl === 42 && msg.val === 127) {clearLoops()}
-  else if (msg.chl === 41 && msg.val === 127) {initLoops()}
-  else if (msg.chl === 45 && msg.val === 127) {
-    p1.p = 0; p2.p = 0; p3.p = 0; p4.p = 0; p5.p = 0; p6.p = 0; p7.p = 0; p8.p = 0
-  }
+  else if (msg.chl === 42 && msg.val === 127) {paused = true; clearLoops()}
+  else if (msg.chl === 41 && msg.val === 127) {paused = false; initLoops()}
+  else if (msg.chl === 45 && msg.val === 127) {resetPartials()}
 }
 
 // theremin control functions
@@ -244,7 +308,9 @@ function start() {
   if (theremin) {
     thereminNote = freqRaw
     synth.triggerAttack(thereminNote)
-    initLoops()
+    if (!paused) {
+      initLoops()
+    }
   }
 }
 function stop() {
