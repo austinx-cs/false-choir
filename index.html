@@ -268,7 +268,10 @@ function updateSynth() {
 }
   
 function resetPartials() {
-  p1.p = 0; p2.p = 0; p3.p = 0; p4.p = 0; p5.p = 0; p6.p = 0; p7.p = 0; p8.p = 0 
+  for (let p = 0; p < partials.length; p++) {
+    partials[p].p = 0
+    partials[p].pRaw = 0
+  }
   updateSynth()
 }
 
