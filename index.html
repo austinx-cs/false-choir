@@ -162,6 +162,7 @@ class Partial {
   }
   updateRateLabel() {
     this.rateLabel.content(`rate:  ${this.rate.toFixed(2)}  `)
+    this.rateInput.value = this.rate
   }
   updateMax(e) {
     this.max = Number(e.target.value)
@@ -169,6 +170,7 @@ class Partial {
   }
   updateMaxLabel() {
     this.maxLabel.content(`max:  ${this.max.toFixed(2)}  `)
+    this.maxInput.value = this.max
   }
   update() {
     if (this.rising && this.pRaw + this.rate > 1) {
@@ -396,7 +398,7 @@ function updatePartials(msg) {
       p8.updateRateLabel()
     }
   }
-  else if (msg.chl < 23) {
+  else if (msg.chl <= 23) {
     if (msg.chl === 16) {
       p1.max = nn.map(msg.val, 0, 127, 0, MAXMAX)
       p1.updateMaxLabel()
